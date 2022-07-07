@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Community_BackEnd.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Nodes;
 
 namespace Community_BackEnd.Controllers;
 [Route("api/[controller]")]
@@ -7,33 +10,39 @@ public class HomeController : ControllerBase
 {
 
 	[HttpGet]
-	public IEnumerable<string> Get()
+	public IEnumerable<NewsArticle> Get()
 	{
-		return new string[] { "value1", "value2" };
+		return StaticDummyDB.GetNews();
+		//return StaticDummyDB.GetNews().ConvertAll(article => article.ToString());
 	}
 
-	// GET api/<HomeController>/5
 	[HttpGet("{id}")]
-	public string Get(int id)
+	public NewsArticle Get(int id)
 	{
-		return "value";
+		return StaticDummyDB.GetArticle(id);
 	}
 
-	// POST api/<HomeController>
+	[Authorize("Moderator")]
 	[HttpPost]
-	public void Post([FromBody] string value)
+	public IActionResult Post(NewsArticle article)
 	{
+		if(ModelState.IsValid)
+		{
+			StaticDummyDB.News.Add(article);
+			return Ok();
+		}
+		return BadRequest();
 	}
 
-	// PUT api/<HomeController>/5
 	[HttpPut("{id}")]
 	public void Put(int id, [FromBody] string value)
 	{
+
 	}
 
-	// DELETE api/<HomeController>/5
 	[HttpDelete("{id}")]
 	public void Delete(int id)
 	{
+
 	}
 }
