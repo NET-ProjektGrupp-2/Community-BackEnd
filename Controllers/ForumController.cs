@@ -8,6 +8,7 @@ namespace Community_BackEnd.Controllers;
 public class ForumController : ControllerBase
 {
 	//Get all Forum Names and Ids
+	//ToDo: add counts of topics, ?
 	[HttpGet]
 	public IEnumerable<string> Get()
 	{
