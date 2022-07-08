@@ -17,21 +17,21 @@ public class ForumController : ControllerBase
 		//return StaticDummyDB.GetForums().ConvertAll(Forum => Forum.ToString());
 	}
 	//Get all Topics of Forum with Id = id
-	[HttpGet("{id}")]
-	public IEnumerable<Topic> Get(int id)
+	[HttpGet("{forumId}")]
+	public IEnumerable<Topic> Get(int forumId)
 	{
-		return StaticDummyDB.GetForum(id);
+		return StaticDummyDB.GetForum(forumId);
 		//return StaticDummyDB.GetForum(id).ConvertAll(Topic => Topic.ToString());
 	}
 	//Get all Posts of Topic with Id = id
-	[HttpGet("{id}")]
-	public IEnumerable<Post> GetTopic(int id)
+	[HttpGet("{topicId}")]
+	public IEnumerable<Post> GetTopic(int topicId)
 	{
-		return StaticDummyDB.GetTopic(id);
+		return StaticDummyDB.GetTopic(topicId);
 		//return StaticDummyDB.GetTopic(id).ConvertAll(Post => Post.ToString());
 	}
-	[HttpPost]
-	public IActionResult Post(Forum forum)
+	[HttpPost("forum")]
+	public IActionResult NewForum(Forum forum)
 	{
 		if(ModelState.IsValid)
 		{
@@ -40,8 +40,8 @@ public class ForumController : ControllerBase
 		}
 		return BadRequest();
 	}
-	[HttpPost]
-	public IActionResult Post(Topic topic)
+	[HttpPost("topic")]
+	public IActionResult StartTopic(Topic topic)
 	{
 		if(ModelState.IsValid)
 		{
@@ -50,7 +50,7 @@ public class ForumController : ControllerBase
 		}
 		return BadRequest();
 	}
-	[HttpPost]
+	[HttpPost("post")]
 	public IActionResult Post(Post post)
 	{
 		if(ModelState.IsValid)

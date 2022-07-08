@@ -1,5 +1,9 @@
-namespace Community_BackEnd;
+using Community_BackEnd.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
+namespace Community_BackEnd;
 public class Program
 {
 	public static void Main(string[] args)
@@ -19,6 +23,11 @@ public class Program
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen();
+		builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+		builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
+			options.SignIn.RequireConfirmedAccount = false;})
+				.AddDefaultTokenProviders()
+				.AddEntityFrameworkStores<AppDbContext>();
 
 		var app = builder.Build();
 
