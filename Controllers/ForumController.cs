@@ -61,7 +61,7 @@ public class ForumController : ControllerBase
 		return BadRequest();
 	}
 	[HttpPut("{forumId,targetForumId}")]
-	public /*async Task<IActionResult>*/IActionResult Move(int forumId, int targetForumId)
+	public /*async Task<IActionResult>*/IActionResult MoveForum(int forumId, int targetForumId)
 	{
 		Forum movedForum = StaticDummyDB.Forums.Find(forum => forum.Id == forumId);
 		if(movedForum != null)
@@ -89,7 +89,7 @@ public class ForumController : ControllerBase
 		return BadRequest();
 	}
 	[HttpPut("{topicId,forumId}")]
-	public /*async Task<IActionResult>*/IActionResult Move(int topicId, int forumId)
+	public /*async Task<IActionResult>*/IActionResult MoveTopic(int topicId, int forumId)
 	{
 		Topic movedTopic = StaticDummyDB.Topics.Find(topic => topic.Id == topicId);
 		Forum targetForum = StaticDummyDB.Forums.Find(forum => forum.Id == forumId);

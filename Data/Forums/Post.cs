@@ -11,7 +11,7 @@ public class Post
 	[Required]
 	public string Author { get; set; }
 	[Required, ReadOnly(true)]
-	public DateTime TimeStamp { get; set; }
+	public DateTime TimeStamp { get; set; } = DateTime.Now;
 	public DateTime TimeStampEdit { get; set; }
 	public int ReplyTo { get; set; }
 	[Required]

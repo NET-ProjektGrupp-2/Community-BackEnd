@@ -13,8 +13,10 @@ public class NewsArticle
 	public string Title { get; set; }
 	[Required, ReadOnly(true)]
 	public string Author { get; set; }
+	public string[] Categories { get; set; } = new string[0];
 	[Required, ReadOnly(true)]
 	public DateTime PublishDate { get; set; } = DateTime.Now;
+	public DateTime TimeStampEdit { get; set; }
 	public Topic DiscussionThread { get; set; }
 	[Required]
 	public string Content { get; set; }

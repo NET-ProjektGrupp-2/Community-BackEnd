@@ -1,6 +1,8 @@
 ﻿using Community_BackEnd.Data;
+using Community_BackEnd.Data.Forums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.Text.Json.Nodes;
 
 namespace Community_BackEnd.Controllers;
@@ -35,14 +37,26 @@ public class HomeController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	public void Put(int id, [FromBody] string value)
+	public IActionResult Edit(NewsArticle article)
 	{
-
+		DateTime editTime = DateTime.Now;
+		if(ModelState.IsValid)
+		{
+			article.TimeStampEdit = editTime;
+			StaticDummyDB.News[StaticDummyDB.News.IndexOf(StaticDummyDB.News.Find(a => a.Id == article.Id))] = article;
+			return Ok();
+		}
+		return BadRequest();
 	}
 
 	[HttpDelete("{id}")]
-	public void Delete(int id)
+	public IActionResult Delete(int id)
 	{
-
+		NewsArticle article; ;
+		if(( article = StaticDummyDB.News.Find(a => a.Id == id)  ) != default(NewsArticle))
+		{
+			return StaticDummyDB.News.Remove(article) ? Ok() : BadRequest();
+		}
+		return BadRequest();
 	}
 }
