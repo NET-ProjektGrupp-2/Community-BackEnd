@@ -2,7 +2,7 @@
 using System.ComponentModel;
 
 namespace Community_BackEnd.Data.Forums;
-//testabel
+
 public class Forum
 {
 	[Key]
