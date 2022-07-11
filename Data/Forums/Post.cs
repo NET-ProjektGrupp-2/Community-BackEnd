@@ -9,14 +9,15 @@ public class Post
 	[ReadOnly(true)]
 	public int Id { get; set; }
 	[Required]
-	public string Author { get; set; }
+	public AppUser Author { get; set; }
 	[Required, ReadOnly(true)]
 	public DateTime TimeStamp { get; set; } = DateTime.Now;
 	public DateTime TimeStampEdit { get; set; }
-	public int ReplyTo { get; set; }
+	public Post? ReplyTo { get; set; }
 	[Required]
 	public Topic Topic { get; set; }
-	[Required]
+
+	[Required(AllowEmptyStrings =false)]
 	public string Content { get; set; }
 
 	public override string ToString()

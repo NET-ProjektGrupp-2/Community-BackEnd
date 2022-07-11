@@ -6,20 +6,23 @@ namespace Community_BackEnd.Data;
 
 public class NewsArticle
 {
-	[Key]
-	[ReadOnly(true)]
+	[Key, ReadOnly(true)]
 	public int Id { get; set; }
-	[Required]
+
+	[Required(AllowEmptyStrings = false)]
 	public string Title { get; set; }
+
 	[Required, ReadOnly(true)]
-	public string Author { get; set; }
-	public string[] Categories { get; set; } = new string[0];
+	public AppUser Author { get; set; }
+
+	[Required(AllowEmptyStrings = false)]
+	public string Content { get; set; }
+	public Topic DiscussionThread { get; set; }
+	public List<string> Categories { get; set; }
+
 	[Required, ReadOnly(true)]
 	public DateTime PublishDate { get; set; } = DateTime.Now;
 	public DateTime TimeStampEdit { get; set; }
-	public Topic DiscussionThread { get; set; }
-	[Required]
-	public string Content { get; set; }
 
 	public override string ToString()
 	{
