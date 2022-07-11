@@ -3,7 +3,7 @@ using System.ComponentModel;
 using Microsoft.AspNetCore.Identity;
 
 namespace Community_BackEnd.Data.Forums;
-
+//testabel
 public class Forum
 {
 	[Key, ReadOnly(true)]
