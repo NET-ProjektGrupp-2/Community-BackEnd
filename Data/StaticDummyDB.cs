@@ -79,7 +79,7 @@ public class StaticDummyDB
 				Id=2,
 				PostDate=DateTime.Now.AddMinutes(-3),
 				AuthorId=Users[1].Id,
-				ReplyToId=1,
+				ContextPostId=1,
 				TopicId=1,
 				Content="Well met World!"
 			},
@@ -87,7 +87,7 @@ public class StaticDummyDB
 				Id=3,
 				PostDate=DateTime.Now.AddMinutes(-2),
 				AuthorId=Users[2].Id,
-				ReplyToId=2,
+				ContextPostId=2,
 				TopicId=1,
 				Content="How is the World weather?"
 			},
@@ -95,7 +95,7 @@ public class StaticDummyDB
 				Id=4,
 				PostDate=DateTime.Now.AddMinutes(-1),
 				AuthorId=Users[3].Id,
-				ReplyToId=3,
+				ContextPostId=3,
 				TopicId=1,
 				Content="The sun is shining, World!"
 			}
