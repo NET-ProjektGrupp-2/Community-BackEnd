@@ -8,20 +8,20 @@ public class Post
 	[Key]
 	[ReadOnly(true)]
 	public int Id { get; set; }
-	[Required]
-	public AppUser Author { get; set; }
 	[Required, ReadOnly(true)]
-	public DateTime TimeStamp { get; set; } = DateTime.Now;
-	public DateTime TimeStampEdit { get; set; }
-	public Post? ReplyTo { get; set; }
+	public DateTime PostDate { get; set; } = DateTime.Now;
+	public DateTime? EditDate { get; set; }
 	[Required]
-	public Topic Topic { get; set; }
+	public string AuthorId { get; set; }
+	public int? ReplyToId { get; set; }
+	[Required]
+	public int TopicId { get; set; }
 
 	[Required(AllowEmptyStrings =false)]
 	public string Content { get; set; }
 
-	public override string ToString()
-	{
-		return $"{Id},{Author},{TimeStamp},{TimeStampEdit},{ReplyTo},{{{Content}}}";
-	}
+	//public override string ToString()
+	//{
+	//	return $"{Id},{Author},{TimeStamp},{TimeStampEdit},{ReplyTo},{{{Content}}}";
+	//}
 }

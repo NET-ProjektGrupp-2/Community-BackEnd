@@ -1,6 +1,7 @@
 ﻿using Community_BackEnd.Data;
 using Community_BackEnd.Data.Forums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Community_BackEnd.Controllers;
 
@@ -8,148 +9,165 @@ namespace Community_BackEnd.Controllers;
 [ApiController]
 public class ForumController : ControllerBase
 {
+	private AppDbContext _dbContext;
+	public ForumController(AppDbContext dbContext)
+	{
+		_dbContext = dbContext;
+	}
+
 	//Get all Forum Names and Ids
 	//ToDo: add counts of topics, ?
 	[HttpGet]
-	public IEnumerable<Forum> Get()
+	public async Task<IEnumerable<Forum>> Get()
 	{
-		return StaticDummyDB.GetForums();
-		//return StaticDummyDB.GetForums().ConvertAll(Forum => Forum.ToString());
+		return await _dbContext.Forums.AsNoTracking().ToListAsync();
 	}
 	//Get all Topics of Forum with Id = id
+
 	[HttpGet("{forumId}")]
-	public IEnumerable<Topic> Get(int forumId)
+	public async Task<IEnumerable<Topic>> Get(int forumId)
 	{
-		return StaticDummyDB.GetForum(forumId);
-		//return StaticDummyDB.GetForum(id).ConvertAll(Topic => Topic.ToString());
+		return (await _dbContext.Forums
+			.Include(f => f.Topics)
+			.AsNoTracking()
+			.FirstAsync(f => f.Id == forumId))
+				.Topics.ToList();
 	}
 	//Get all Posts of Topic with Id = id
+
 	[HttpGet("{topicId}")]
-	public IEnumerable<Post> GetTopic(int topicId)
+	public async Task<IEnumerable<Post>> GetTopic(int topicId)
 	{
-		return StaticDummyDB.GetTopic(topicId);
-		//return StaticDummyDB.GetTopic(id).ConvertAll(Post => Post.ToString());
+		 return await _dbContext.Topics.Include(t => t.Posts).AsNoTracking().Where(t => t.Id == topicId).Select((t, i) => t.Posts).FirstAsync();
 	}
+
 	[HttpPost("forum")]
 	public IActionResult NewForum(Forum forum)
 	{
 		if(ModelState.IsValid)
 		{
-			StaticDummyDB.Forums.Add(forum);
+			_dbContext.Forums.Add(forum);
+			_dbContext.SaveChangesAsync();
 			return Ok();
 		}
 		return BadRequest();
 	}
+
 	[HttpPost("topic")]
 	public IActionResult StartTopic(Topic topic)
 	{
 		if(ModelState.IsValid)
 		{
-			StaticDummyDB.Topics.Add(topic);
+			_dbContext.Topics.Add(topic);
+			_dbContext.SaveChangesAsync();
 			return Ok();
 		}
 		return BadRequest();
 	}
+
 	[HttpPost("post")]
 	public IActionResult Post(Post post)
 	{
 		if(ModelState.IsValid)
 		{
-			StaticDummyDB.Posts.Add(post);
-			return Ok();
+			_dbContext.Posts.Add(post);
+			_dbContext.SaveChanges();
+			return Ok(new {PostId = post.Id});
 		}
 		return BadRequest();
 	}
+
 	[HttpPut("{forumId,targetForumId}")]
-	public /*async Task<IActionResult>*/IActionResult MoveForum(int forumId, int targetForumId)
+	public async Task<IActionResult> MoveForum(int forumId, int targetForumId)
 	{
-		Forum movedForum = StaticDummyDB.Forums.Find(forum => forum.Id == forumId);
-		if(movedForum != null)
-		{
-			if(targetForumId == 0)
-			{
-				movedForum.ParentForum = null;
-				return Ok();
-			}
-			else
-			{
-				Forum targetForum = StaticDummyDB.Forums.Find(forum => forum.Id == targetForumId);
-				if(targetForum != null)
-				{
-					if(movedForum.ParentForum != null)
-					{
-						movedForum.ParentForum.SubForums.Remove(movedForum);
-					}
-					movedForum.ParentForum = targetForum;
-					targetForum.SubForums.Add(movedForum);
-					return Ok();
-				}
-			}
-		}
-		return BadRequest();
+		var movedForum = new Forum(){Id = forumId};
+		_dbContext.Attach(movedForum);
+		movedForum.ParentForumId = targetForumId;
+		return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok();
+		//Forum? movedForum = await _dbContext.Forums.FindAsync(forumId);
+		//if(movedForum != null)
+		//{
+		//	if(targetForumId == 0)
+		//	{
+		//		movedForum.ParentForumId = null;
+		//		return Ok();
+		//	}
+		//	else
+		//	{
+		//		if(true)
+		//		{
+
+		//		}
+		//		Forum? targetForum = await _dbContext.Forums.FindAsync(targetForumId);
+		//		if(targetForum != null)
+		//		{
+		//			if(movedForum.ParentForumId != null)
+		//			{
+		//				movedForum.ParentForum.SubForums.Remove(movedForum);
+		//			}
+		//			movedForum.ParentForum = targetForum;
+		//			targetForum.SubForums.Add(movedForum);
+		//			return Ok();
+		//		}
+		//	}
+		//}
 	}
 	[HttpPut("{topicId,forumId}")]
-	public /*async Task<IActionResult>*/IActionResult MoveTopic(int topicId, int forumId)
+	public async Task<IActionResult> MoveTopic(int topicId, int forumId)
 	{
-		Topic movedTopic = StaticDummyDB.Topics.Find(topic => topic.Id == topicId);
-		Forum targetForum = StaticDummyDB.Forums.Find(forum => forum.Id == forumId);
-		if(movedTopic != null && targetForum != null)
-		{
-			movedTopic.Forum.Topics.Remove(movedTopic);
-			movedTopic.Forum = targetForum;
-			targetForum.Topics.Add(movedTopic);
+		Topic movedTopic = new Topic(){Id = topicId};
+		_dbContext.Attach(movedTopic);
+		movedTopic.ForumId = forumId;
+		return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok();
+		
+		//if(movedTopic != null && targetForum != null)
+		//{
+		//	movedTopic.Forum.Topics.Remove(movedTopic);
+		//	movedTopic.Forum = targetForum;
+		//	targetForum.Topics.Add(movedTopic);
 
-			return Ok();
-		}
-		return BadRequest();
+		//	return Ok();
+		//}
+		//return BadRequest();
 	}
-	[HttpPut("{id}")]
-	public /*async Task<IActionResult>*/IActionResult Edit(Post post)
+	[HttpPut("{postId}")]
+	public async Task<IActionResult> EditPost(int postId, [FromBody]string content)
 	{
-		DateTime editTime = DateTime.Now;
+		DateTime editDate = DateTime.Now;
 		if(ModelState.IsValid)
 		{
-			post.TimeStampEdit = editTime;
-
-			StaticDummyDB.Posts[StaticDummyDB.Posts.IndexOf(StaticDummyDB.Posts.Find(p => p.Id == post.Id))] = post;
-			//if(await TryUpdateModelAsync<Post>(post))
-			//{
-				return Ok();
-			//}
+			var postUpdate = new Post(){Id = postId};
+			_dbContext.Attach(postUpdate);
+			postUpdate.EditDate = editDate;
+			postUpdate.Content = content;
+			return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok();
 		}
 		return BadRequest();
 	}
 
 	[HttpDelete("{type,id}")]
-	public IActionResult Delete(string type, int id)
+	public async Task<IActionResult> DeleteAsync(string type, int id)
 	{
-		bool success = false;
 		switch(type)
 		{
 			case "post":
-				Post p;
-				if((p = StaticDummyDB.Posts.Find(post => post.Id == id)) != default(Post))
-				{
-					success = StaticDummyDB.Posts.Remove(p);
-				}
-				break;
+				Post p = new Post(){Id = id};
+				_dbContext.Attach(p);
+				_dbContext.Posts.Remove(p);
+				return await _dbContext.SaveChangesAsync() == 0 ? NotFound() : Ok();
 			case "topic":
-				Topic t;
-				if((t = StaticDummyDB.Topics.Find(topic => topic.Id == id) ) != default(Topic))
-				{
-					success = StaticDummyDB.Topics.Remove(t);
-				}
-				break;
+				Topic t = new Topic(){ Id = id};
+				_dbContext.Attach(t);
+				_dbContext.Topics.Remove(t);
+				return await _dbContext.SaveChangesAsync() == 0 ? NotFound() : Ok();
 			case "forum":
-				Forum f;
-				if(( f = StaticDummyDB.Forums.Find(forum => forum.Id == id) ) != default(Forum))
-				{
-					success = StaticDummyDB.Forums.Remove(f);
-				}
-				break;
+				Forum f = new Forum(){ Id = id};
+				_dbContext.Attach(f);
+				_dbContext.Forums.Remove(f);
+				return await _dbContext.SaveChangesAsync() == 0 ? NotFound() : Ok();
 			default:
 				break;
 		}
-		return success ? Ok() : BadRequest();
+		return BadRequest();
 	}
 }
