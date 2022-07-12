@@ -75,15 +75,12 @@ public class AppDbContext : IdentityDbContext<AppUser>
 			.HasForeignKey(p => p.ContextPostId)
 			.HasPrincipalKey(p => p.Id);
 
-		if(!Users.Any())
-		{
-			modelBuilder.Entity<AppUser>().HasData(StaticDummyDB.Users);
-			modelBuilder.Entity<IdentityRole>().HasData(StaticDummyDB.Roles);
-			modelBuilder.Entity<Forum>().HasData(StaticDummyDB.Forums);
-			modelBuilder.Entity<Topic>().HasData(StaticDummyDB.Topics);
-			modelBuilder.Entity<Post>().HasData(StaticDummyDB.Posts);
-			modelBuilder.Entity<NewsArticle>().HasData(StaticDummyDB.News);
-			modelBuilder.Entity<IdentityUserRole<string>>().HasData(StaticDummyDB.UserRoles);
-		}
+		modelBuilder.Entity<AppUser>().HasData(StaticDummyDB.Users);
+		modelBuilder.Entity<IdentityRole>().HasData(StaticDummyDB.Roles);
+		modelBuilder.Entity<Forum>().HasData(StaticDummyDB.Forums);
+		modelBuilder.Entity<Topic>().HasData(StaticDummyDB.Topics);
+		modelBuilder.Entity<Post>().HasData(StaticDummyDB.Posts);
+		modelBuilder.Entity<NewsArticle>().HasData(StaticDummyDB.News);
+		modelBuilder.Entity<IdentityUserRole<string>>().HasData(StaticDummyDB.UserRoles);
 	}
 }
