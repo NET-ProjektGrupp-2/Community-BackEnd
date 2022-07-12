@@ -40,6 +40,11 @@ public class AppDbContext : IdentityDbContext<AppUser>
 			.HasMany<NewsArticle>()
 			.WithOne()
 			.HasForeignKey(a => a.AuthorId);
+		modelBuilder.Entity<AppUser>()
+			.HasMany(u => u.IdentityUserRoles)
+			.WithOne()
+			.HasForeignKey(ur => ur.UserId)
+			.HasPrincipalKey(u => u.Id);
 
 		modelBuilder.Entity<IdentityRole>()
 			.HasMany<Forum>()
@@ -81,6 +86,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
 		modelBuilder.Entity<Topic>().HasData(StaticDummyDB.Topics);
 		modelBuilder.Entity<Post>().HasData(StaticDummyDB.Posts);
 		modelBuilder.Entity<NewsArticle>().HasData(StaticDummyDB.News);
-		modelBuilder.Entity<IdentityUserRole<string>>().HasData(StaticDummyDB.UserRoles);
+		modelBuilder.Entity<IdentityUserRole<string>>().HasNoKey().HasData(StaticDummyDB.UserRoles);
 	}
 }
