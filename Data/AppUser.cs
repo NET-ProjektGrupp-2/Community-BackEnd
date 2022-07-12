@@ -1,6 +1,7 @@
 ﻿using Community_BackEnd.Data.Forums;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Nodes;
 
 namespace Community_BackEnd.Data;
 
@@ -18,7 +19,8 @@ public class AppUser : IdentityUser
 	public bool HidePersonalInfo { get; set; } = true;
 	[Required]
 	public DateTime CreationDate { get; set; } = DateTime.Now;
-	public Dictionary<string,string>? AboutMe { get; set; }
+	//Json object with <key:value> pairs of optional personal profile information
+	public string? AboutMe { get; set; }
 	public List<Forum>? ModeratedForums { get; set; }
 	public List<Topic>? Topics { get; set; }
 	public List<Post>? Posts { get; set; }
