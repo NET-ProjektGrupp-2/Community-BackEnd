@@ -24,5 +24,5 @@ public class AppUser : IdentityUser
 	public List<Forum>? ModeratedForums { get; set; }
 	public List<Topic>? Topics { get; set; }
 	public List<Post>? Posts { get; set; }
-
+	public List<IdentityUserRole<string>> IdentityUserRoles { get; set; }
 }
