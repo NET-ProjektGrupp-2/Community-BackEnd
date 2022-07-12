@@ -19,6 +19,7 @@ public class AppUser : IdentityUser
 	[Required]
 	public DateTime CreationDate { get; set; } = DateTime.Now;
 	public Dictionary<string,string>? AboutMe { get; set; }
+	public List<Forum>? ModeratedForums { get; set; }
 	public List<Topic>? Topics { get; set; }
 	public List<Post>? Posts { get; set; }
 

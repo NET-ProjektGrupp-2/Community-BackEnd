@@ -34,7 +34,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
 			.HasForeignKey(t => t.AuthorId)
 			.HasPrincipalKey(u => u.Id);
 		modelBuilder.Entity<AppUser>()
-			.HasMany<Forum>()
+			.HasMany(a => a.ModeratedForums)
 			.WithMany(f => f.Moderators);
 		modelBuilder.Entity<AppUser>()
 			.HasMany<NewsArticle>()
@@ -72,7 +72,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
 		modelBuilder.Entity<Post>()
 			.HasMany<Post>()
 			.WithOne()
-			.HasForeignKey(p => p.ReplyToId)
+			.HasForeignKey(p => p.ContextPostId)
 			.HasPrincipalKey(p => p.Id);
 
 		if(!Users.Any())

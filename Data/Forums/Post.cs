@@ -13,7 +13,7 @@ public class Post
 	public DateTime? EditDate { get; set; }
 	[Required]
 	public string AuthorId { get; set; }
-	public int? ReplyToId { get; set; }
+	public int? ContextPostId { get; set; }
 	[Required]
 	public int TopicId { get; set; }
 
