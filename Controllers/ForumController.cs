@@ -31,8 +31,9 @@ public class ForumController : ControllerBase
 			.Include(f => f.Topics)
 			.AsNoTracking()
 			.Where(f => f.Id == forumId)
+			.Take(1)
 			.Select(f => f.Topics)
-			.FirstAsync();
+			.FirstOrDefaultAsync();
 		return topics == null ? NotFound() : Ok(topics);
 	}
 
@@ -44,7 +45,9 @@ public class ForumController : ControllerBase
 			.Include(t => t.Posts)
 			.AsNoTracking()
 			.Where(t => t.Id == topicId)
-			.Select(t => t.Posts).FirstAsync();
+			.Take(1)
+			.Select(t => t.Posts)
+			.FirstOrDefaultAsync();
 		return posts == null ? NotFound() : Ok(posts);
 	}
 
@@ -54,7 +57,8 @@ public class ForumController : ControllerBase
 		if(ModelState.IsValid)
 		{
 			_dbContext.Forums.Add(forum);
-			return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok(forum.Id);
+			return await _dbContext.SaveChangesAsync() == 0 
+				? BadRequest() : Ok(forum);
 		}
 		return BadRequest();
 	}
@@ -65,7 +69,8 @@ public class ForumController : ControllerBase
 		if(ModelState.IsValid)
 		{
 			_dbContext.Topics.Add(topic);
-			return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok(topic.Id);
+			return await _dbContext.SaveChangesAsync() == 0 
+				? BadRequest() : Ok(topic);
 		}
 		return BadRequest();
 	}
@@ -76,45 +81,20 @@ public class ForumController : ControllerBase
 		if(ModelState.IsValid)
 		{
 			_dbContext.Posts.Add(post);
-			return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok(post.Id);
+			return await _dbContext.SaveChangesAsync() == 0 
+				? BadRequest() : Ok(post);
 		}
 		return BadRequest();
 	}
 
 	[HttpPut("move")]
-	public async Task<IActionResult> MoveForum(int forumId, int targetForumId)
+	public async Task<IActionResult> MoveForum(int forumId, int? targetForumId)
 	{
-		var movedForum = new Forum(){Id = forumId};
-		_dbContext.Attach(movedForum);
-		movedForum.ParentForumId = targetForumId;
-		return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok();
-		//Forum? movedForum = await _dbContext.Forums.FindAsync(forumId);
-		//if(movedForum != null)
-		//{
-		//	if(targetForumId == 0)
-		//	{
-		//		movedForum.ParentForumId = null;
-		//		return Ok();
-		//	}
-		//	else
-		//	{
-		//		if(true)
-		//		{
-
-		//		}
-		//		Forum? targetForum = await _dbContext.Forums.FindAsync(targetForumId);
-		//		if(targetForum != null)
-		//		{
-		//			if(movedForum.ParentForumId != null)
-		//			{
-		//				movedForum.ParentForum.SubForums.Remove(movedForum);
-		//			}
-		//			movedForum.ParentForum = targetForum;
-		//			targetForum.SubForums.Add(movedForum);
-		//			return Ok();
-		//		}
-		//	}
-		//}
+		var prop = _dbContext.Attach(new Forum(){Id = forumId}).Property(nameof(Forum.ParentForumId));
+		prop.CurrentValue = targetForumId;
+		prop.IsModified = true;
+		return await _dbContext.SaveChangesAsync() == 0 
+			? BadRequest() : Ok();
 	}
 	[HttpPut("topics/move")]
 	public async Task<IActionResult> MoveTopic(int topicId, int forumId)
@@ -122,17 +102,8 @@ public class ForumController : ControllerBase
 		Topic movedTopic = new Topic(){Id = topicId};
 		_dbContext.Attach(movedTopic);
 		movedTopic.ForumId = forumId;
-		return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok();
-
-		//if(movedTopic != null && targetForum != null)
-		//{
-		//	movedTopic.Forum.Topics.Remove(movedTopic);
-		//	movedTopic.Forum = targetForum;
-		//	targetForum.Topics.Add(movedTopic);
-
-		//	return Ok();
-		//}
-		//return BadRequest();
+		return await _dbContext.SaveChangesAsync() == 0 
+			? BadRequest() : Ok();
 	}
 	[HttpPut("topics/posts/edit")]
 	public async Task<IActionResult> EditPost(int postId, [FromBody] string content)
@@ -144,7 +115,8 @@ public class ForumController : ControllerBase
 			_dbContext.Attach(postUpdate);
 			postUpdate.EditDate = editDate;
 			postUpdate.Content = content;
-			return await _dbContext.SaveChangesAsync() == 0 ? BadRequest() : Ok();
+			return await _dbContext.SaveChangesAsync() == 0 
+				? BadRequest() : Ok(editDate.ToLongDateString());
 		}
 		return BadRequest();
 	}
@@ -155,7 +127,8 @@ public class ForumController : ControllerBase
 		Forum f = new Forum(){ Id = id};
 		_dbContext.Attach(f);
 		_dbContext.Forums.Remove(f);
-		return await _dbContext.SaveChangesAsync() == 0 ? NotFound() : Ok();
+		return await _dbContext.SaveChangesAsync() == 0 
+			? NotFound() : Ok();
 	}
 	[HttpDelete("topics/delete")]
 	public async Task<IActionResult> DeleteTopic(int id)
@@ -163,7 +136,8 @@ public class ForumController : ControllerBase
 		Topic t = new Topic(){ Id = id};
 		_dbContext.Attach(t);
 		_dbContext.Topics.Remove(t);
-		return await _dbContext.SaveChangesAsync() == 0 ? NotFound() : Ok();
+		return await _dbContext.SaveChangesAsync() == 0 
+			? NotFound() : Ok();
 	}
 	[HttpDelete("topics/posts/delete")]
 	public async Task<IActionResult> DeletePost(int id)
@@ -171,6 +145,7 @@ public class ForumController : ControllerBase
 		Post p = new Post(){Id = id};
 		_dbContext.Attach(p);
 		_dbContext.Posts.Remove(p);
-		return await _dbContext.SaveChangesAsync() == 0 ? NotFound() : Ok();
+		return await _dbContext.SaveChangesAsync() == 0 
+			? NotFound() : Ok();
 	}
 }
