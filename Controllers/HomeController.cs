@@ -42,7 +42,7 @@ public class HomeController : ControllerBase
 		DateTime editTime = DateTime.Now;
 		if(ModelState.IsValid)
 		{
-			article.TimeStampEdit = editTime;
+			article.EditDate = editTime;
 			StaticDummyDB.News[StaticDummyDB.News.IndexOf(StaticDummyDB.News.Find(a => a.Id == article.Id))] = article;
 			return Ok();
 		}
