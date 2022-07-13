@@ -22,17 +22,12 @@ public class Program
 			);
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
 		builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 		builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 			options.SignIn.RequireConfirmedAccount = false;})
 				.AddDefaultTokenProviders()
 				.AddEntityFrameworkStores<AppDbContext>();
-
-		if(builder.Environment.IsDevelopment())
-		{
-			builder.Services.AddSwaggerGen();
-		}
-
 
 		var app = builder.Build();
 
