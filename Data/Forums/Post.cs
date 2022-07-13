@@ -6,8 +6,7 @@ namespace Community_BackEnd.Data.Forums;
 
 public class Post
 {
-	[Key]
-	[ReadOnly(true)]
+	[Key, ReadOnly(true)]
 	public int Id { get; set; }
 	[Required, ReadOnly(true)]
 	public DateTime PostDate { get; set; } = DateTime.Now;

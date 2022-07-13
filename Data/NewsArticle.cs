@@ -23,7 +23,7 @@ public class NewsArticle
 	public int? TopicId { get; set; }
 	public Topic? Topic { get; set; }
 	//Json object with a category names array
-	public string Categories { get; set; } = @"{ Categories: ['News','Site Development'] }";
+	public string Categories { get; set; } = @"{ Categories: ['All', 'News'] }";
 
 	[Required, ReadOnly(true)]
 	public DateTime PublishDate { get; set; } = DateTime.Now;
