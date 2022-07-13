@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Identity;
 
 namespace Community_BackEnd.Data.Forums;
 
@@ -14,11 +15,13 @@ public class Forum
 	public string Description { get; set; }
 
 	public int? ParentForumId { get; set; }
-	public List<Forum>? SubForums { get; set; }
-	public List<Topic> Topics { get; set; } = new List<Topic>();
+	public Forum? ParentForum { get; set; }
+	public List<Forum> SubForums { get; set; }
+	public List<Topic> Topics { get; set; }
 
 	public List<AppUser> Moderators { get; set; }
-	public string RestrictedRoleId { get; set; }
+	public IdentityRole? RestrictedRole { get; set; }
+	public string? RestrictedRoleId { get; set; }
 
 	//public override string ToString()
 	//{

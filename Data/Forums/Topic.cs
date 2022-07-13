@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Community_BackEnd.Data.Forums;
 
@@ -12,11 +13,14 @@ public class Topic
 	public string Title { get; set; }
 	[Required]
 	public DateTime CreationDate { get; set; }
-	[Required]
-	public string AuthorId { get; set; }
-	[Required]
+	public NewsArticle? Article { get; set; }
+	[BindRequired]
+	public string? AuthorId { get; set; }
+	public AppUser? Author { get; set; }
+	[BindRequired]
 	public int ForumId { get; set; }
-	public List<Post> Posts	{ get; set; } = new List<Post>();
+	public Forum Forum { get; set; }
+	public List<Post> Posts	{ get; set; }
 
 	//public override string ToString()
 	//{

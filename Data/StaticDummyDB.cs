@@ -106,8 +106,7 @@ public class StaticDummyDB
 				Id=1,
 				Title="Hello World!",
 				AuthorId=Users[0].Id,
-				ForumId=1,
-				Posts=new(Posts)
+				ForumId=1
 			}
 		});
 	public static List<Forum> Forums = new(
@@ -115,9 +114,7 @@ public class StaticDummyDB
 			new Forum(){
 				Id=1,
 				Name="Main",
-				Description="The forum of all forums!",
-				Topics=new(Topics),
-				Moderators=new List<AppUser>(Users)
+				Description="The forum of all forums!"
 			}
 		});
 
@@ -151,14 +148,14 @@ public class StaticDummyDB
 				Id=1,
 				Title="There are News!",
 				AuthorId=Users[0].Id,
-				DiscussionThreadId=1,
+				TopicId=1,
 				Content="There are now news in the news feed. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut felis ante, consequat ac urna nec, pretium consequat diam. Donec imperdiet bibendum est sed luctus. Sed pretium, eros imperdiet laoreet dapibus, neque ante molestie metus, nec sagittis metus est ut velit. Nullam ut egestas diam. Curabitur accumsan diam ac lorem commodo, vitae condimentum ipsum porta. Duis ullamcorper, enim non hendrerit egestas, nunc libero auctor turpis, consequat accumsan ligula lacus eget dolor. Etiam tortor arcu, laoreet in iaculis ac, facilisis non libero. Morbi egestas massa mi, ut dictum tellus sagittis in. Morbi nec mattis elit. Aenean sit amet nisi viverra, dignissim magna."
 			},
 			new NewsArticle{
 				Id=2,
 				Title="Lorem Ipsum",
 				AuthorId=Users[1].Id,
-				DiscussionThreadId=1,
+				TopicId=1,
 				Content="Ipsum dolor sit amet, consectetur adipiscing elit. Ut felis ante, consequat ac urna nec, pretium consequat diam. Donec imperdiet bibendum est sed luctus. Sed pretium, eros imperdiet laoreet dapibus, neque ante molestie metus, nec sagittis metus est ut velit. Nullam ut egestas diam. Curabitur accumsan diam ac lorem commodo, vitae condimentum ipsum porta. Duis ullamcorper, enim non hendrerit egestas, nunc libero auctor turpis, consequat accumsan ligula lacus eget dolor. Etiam tortor arcu, laoreet in iaculis ac, facilisis non libero. Morbi egestas massa mi, ut dictum tellus sagittis in. Morbi nec mattis elit. Aenean sit amet nisi viverra, dignissim magna."
 			}
 		});

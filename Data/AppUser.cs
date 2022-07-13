@@ -10,7 +10,7 @@ public class AppUser : IdentityUser
 	public AppUser(string userName) : base(userName)
 	{
 	}
-
+	[Required]
 	public string DisplayName { get; set; }
 	[Required(AllowEmptyStrings = false)]
 	public string Firstname { get; set; }
@@ -24,5 +24,6 @@ public class AppUser : IdentityUser
 	public List<Forum>? ModeratedForums { get; set; }
 	public List<Topic>? Topics { get; set; }
 	public List<Post>? Posts { get; set; }
+	public List<NewsArticle>? Articles { get; set; }
 	public List<IdentityUserRole<string>> IdentityUserRoles { get; set; }
 }
