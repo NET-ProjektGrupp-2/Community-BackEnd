@@ -19,7 +19,7 @@ public class AppUser : IdentityUser
 	public bool HidePersonalInfo { get; set; } = true;
 	[Required]
 	public DateTime CreationDate { get; set; } = DateTime.Now;
-	//Json object with <key:value> pairs of optional personal profile information
+	// JSON { Interests : 'Turtles, Code', Bio : 'Tldr;' }
 	public string? AboutMe { get; set; }
 	public List<Forum>? ModeratedForums { get; set; }
 	public List<Topic>? Topics { get; set; }

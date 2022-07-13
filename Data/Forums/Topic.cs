@@ -6,8 +6,7 @@ namespace Community_BackEnd.Data.Forums;
 
 public class Topic
 {
-	[Key]
-	[ReadOnly(true)]
+	[Key, ReadOnly(true)]
 	public int Id { get; set; }
 	[Required(AllowEmptyStrings = false)]
 	public string Title { get; set; }
