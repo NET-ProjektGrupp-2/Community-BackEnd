@@ -19,7 +19,7 @@ public class Topic
 	[BindRequired]
 	public int ForumId { get; set; }
 	public Forum Forum { get; set; }
-	public List<Post> Posts	{ get; set; }
+	public List<Post>? Posts	{ get; set; }
 
 	//public override string ToString()
 	//{

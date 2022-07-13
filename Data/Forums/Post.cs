@@ -16,7 +16,7 @@ public class Post
 	public AppUser? Author { get; set; }
 	public int? ContextPostId { get; set; }
 	public Post? ContextPost { get; set; }
-	public List<Post> Replies { get; set; }
+	public List<Post>? Replies { get; set; }
 	[Required]
 	public int TopicId { get; set; }
 	public Topic Topic { get; set; }
