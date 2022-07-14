@@ -11,6 +11,7 @@ namespace Community_BackEnd.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class JWTController : Controller
     {
 
