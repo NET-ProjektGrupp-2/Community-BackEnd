@@ -26,7 +26,7 @@ public class Program
 					.AllowAnyHeader()
 				)
 			);
-		builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
+		
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen();
@@ -36,13 +36,15 @@ public class Program
 				.AddDefaultTokenProviders()
 				.AddEntityFrameworkStores<AppDbContext>();
 		// Adding Authentication
+
 		builder.Services.AddAuthentication(options =>
 		{
 			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 			options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-		})
+		});
 // Adding Jwt Bearer
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
 	options.SaveToken = true;
@@ -51,13 +53,15 @@ public class Program
 	{
 		ValidateIssuer = true,
 		ValidateAudience = true,
+		ValidateIssuerSigningKey= true,
         ValidAudience =configuration["JWT:ValidAudience"],
 		ValidIssuer = configuration["JWT:ValidIssuer"],
 		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
 	};
 });
-	
 
+		builder.Services.AddMvc();
+		builder.Services.AddRazorPages();
 			builder.Services.AddControllers();
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
