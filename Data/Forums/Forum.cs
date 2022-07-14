@@ -14,7 +14,7 @@ public class Forum
 	public string Description { get; set; }
 
 	public Forum? ParentForum { get; set; }
-	public List<Forum> SubForums { get; set; } = new List<Forum>();
+    public List<Forum> SubForums { get; set; } = new List<Forum>();
 	public List<Topic> Topics { get; set; } = new List<Topic>();
 
 	public override string ToString()
