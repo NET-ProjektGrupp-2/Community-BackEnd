@@ -1,7 +1,9 @@
 using Community_BackEnd.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Community_BackEnd;
 public class Program
@@ -9,7 +11,7 @@ public class Program
 	public static void Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
-
+		ConfigurationManager configuration = builder.Configuration;
 		builder.Services.AddCors(
 			options => options.AddPolicy(
 				name: "AllowCORS", 
@@ -20,6 +22,7 @@ public class Program
 					.AllowAnyHeader()
 				)
 			);
+		builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -27,6 +30,31 @@ public class Program
 			options.SignIn.RequireConfirmedAccount = false;})
 				.AddDefaultTokenProviders()
 				.AddEntityFrameworkStores<AppDbContext>();
+		// Adding Authentication
+		builder.Services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+		})
+		// Adding Jwt Bearer
+		.AddJwtBearer(options =>
+		{
+			options.SaveToken = true;
+			options.RequireHttpsMetadata = false;
+			options.TokenValidationParameters = new TokenValidationParameters()
+			{
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidAudience =configuration["JWT:ValidAudience"],
+				ValidIssuer = configuration["JWT:ValidIssuer"],
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+			};
+		});
+		builder.Services.AddControllers();
+		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+		builder.Services.AddEndpointsApiExplorer();
+		builder.Services.AddSwaggerGen();
 
 		if(builder.Environment.IsDevelopment())
 		{
