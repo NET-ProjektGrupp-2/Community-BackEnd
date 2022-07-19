@@ -2,6 +2,7 @@
 using Community_BackEnd.Data.Forums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Community_BackEnd.Controllers;
 
@@ -22,16 +23,16 @@ public class ForumController : ControllerBase
 	{
 		return await _dbContext.Forums.AsNoTracking().ToListAsync();
 	}
-	//Get all Topics of Forum with Id = forumId
 
+	//Get all Topics of Forum with Id = forumId
 	[HttpGet("get")]
 	public async Task<IActionResult> Get(int forumId)
 	{
 		var topics = await _dbContext.Forums
 			.Include(f => f.Topics)
-			.AsNoTracking()
+			.AsNoTracking() // Optimization when only reading data without any manipulation
 			.Where(f => f.Id == forumId)
-			.Take(1)
+			.Take(1) // Makes the sql server stop the lookup once one match has been found
 			.Select(f => f.Topics)
 			.FirstOrDefaultAsync();
 		return topics == null ? NotFound() : Ok(topics);
@@ -87,38 +88,66 @@ public class ForumController : ControllerBase
 		return BadRequest();
 	}
 
+	// Most of this code is to void making a query to the
+	// database if the Context is not tracking the forum.
 	[HttpPut("move")]
 	public async Task<IActionResult> MoveForum(int forumId, int? targetForumId)
 	{
-		var prop = _dbContext.Attach(new Forum(){Id = forumId}).Property(nameof(Forum.ParentForumId));
-		prop.CurrentValue = targetForumId;
-		prop.IsModified = true;
+		// If the Context IS tracking the entity, use that because you
+		// won't be able to attach another entity with the same Id
+		EntityEntry<Forum>? forum = _dbContext.ChangeTracker.Entries<Forum>()
+			.FirstOrDefault(x => x.Entity.Id == forumId);
+
+		if(forum == null)
+		{
+			// If it is not tracked, attaching a dummy object with only the Id and editing only the
+			// specific property will make EF send only an Update query to the sql server on save.
+			forum = _dbContext.Attach(new Forum() { Id = forumId });
+			// When assigning null to a nullable value on a tracked dummy object,
+			// the tracker will not notice any change because the value is null by
+			// default, so IsModified needs to be set to true manually.
+			var prop = forum.Property(f => f.ParentForumId);
+			prop.CurrentValue = targetForumId;
+			prop.IsModified = true;
+			forum.State = EntityState.Modified;
+		}
+		else
+		{
+			// If it is tracked, any change to the property will be seen by the tracker
+			forum.Entity.ParentForumId = targetForumId;
+		}
 		return await _dbContext.SaveChangesAsync() == 0 
-			? BadRequest() : Ok();
+			? NotFound() : Ok();
 	}
+	// See MoveForum() for explanation of DbContext tracking
 	[HttpPut("topics/move")]
 	public async Task<IActionResult> MoveTopic(int topicId, int forumId)
 	{
-		Topic movedTopic = new Topic(){Id = topicId};
-		_dbContext.Attach(movedTopic);
-		movedTopic.ForumId = forumId;
+		EntityEntry<Topic>? topic = _dbContext.ChangeTracker.Entries<Topic>()
+			.FirstOrDefault(x => x.Entity.Id == topicId);
+		if(topic == null)
+		{
+			topic = _dbContext.Attach(new Topic() { Id = topicId });
+		}
+		topic.Entity.ForumId = forumId;
 		return await _dbContext.SaveChangesAsync() == 0 
-			? BadRequest() : Ok();
+			? NotFound() : Ok();
 	}
+	// See MoveForum() for explanation of DbContext tracking
 	[HttpPut("topics/posts/edit")]
-	public async Task<IActionResult> EditPost(int postId, [FromBody] string content)
+	public async Task<IActionResult> EditPost(int postId, string content)
 	{
 		DateTime editDate = DateTime.Now;
-		if(ModelState.IsValid)
+		EntityEntry<Post>? post = _dbContext.ChangeTracker.Entries<Post>()
+			.FirstOrDefault(x => x.Entity.Id == postId);
+		if(post == null)
 		{
-			var postUpdate = new Post(){Id = postId};
-			_dbContext.Attach(postUpdate);
-			postUpdate.EditDate = editDate;
-			postUpdate.Content = content;
-			return await _dbContext.SaveChangesAsync() == 0 
-				? BadRequest() : Ok(editDate.ToLongDateString());
+			post = _dbContext.Attach(new Post() { Id = postId });
 		}
-		return BadRequest();
+		post.Entity.EditDate = editDate;
+		post.Entity.Content = content;
+		return await _dbContext.SaveChangesAsync() == 0 
+				? NotFound() : Ok(new {editTime = editDate.ToLongDateString() });
 	}
 
 	[HttpDelete("delete")]
