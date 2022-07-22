@@ -26,4 +26,22 @@ public class AppUser : IdentityUser
 	public List<Post>? Posts { get; set; }
 	public List<NewsArticle>? Articles { get; set; }
 	public List<IdentityUserRole<string>> IdentityUserRoles { get; set; }
+
+	internal List<string> StripInfo()
+	{
+		var strippedUser = new List<string>() {
+			Id,
+			DisplayName,
+			CreationDate.ToString("g")
+		};
+		if(!this.HidePersonalInfo)
+		{
+			strippedUser.Add(Firstname);
+			strippedUser.Add(Surname);
+			strippedUser.Add(Email);
+			strippedUser.Add(AboutMe);
+		}
+
+		return strippedUser;
+	}
 }
