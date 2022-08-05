@@ -75,7 +75,7 @@ public class Program
 		if(app.Environment.IsDevelopment())
 		{
 			app.UseDeveloperExceptionPage();
-			//app.UseSwagger();
+			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
 		//app.UseEndpoints(endpoints =>
