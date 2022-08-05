@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Community_BackEnd.Entities;
 
 namespace Community_BackEnd.Data.Forums;
 

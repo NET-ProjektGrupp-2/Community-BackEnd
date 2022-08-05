@@ -1,10 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Community_BackEnd.Data;
+using Community_BackEnd.Data.Forums;
+using Community_BackEnd.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace Community_BackEnd.Controllers;
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
+	private IUserService _userService;
+	//private readonly JWTSetting setting;
+	private readonly IConfiguration _configuration;
+	private readonly AppDbContext context;
+	public UserController(IUserService userService)
+	{
+		//context = AppDbContext;
+		_userService = userService;
+	}
+
 	// GET: api/<UserController>
 	[HttpGet]
 	public IEnumerable<string> Get()
@@ -18,22 +34,17 @@ public class UserController : ControllerBase
 	{
 		return "value";
 	}
-
-	// POST api/<UserController>
-	[HttpPost]
-	public void Post([FromBody] string value)
+    [Route("[Authenticate]")]
+    [AllowAnonymous]
+	[HttpPost("authenticate")]
+	public IActionResult Authenticate([FromBody] AuthenticateModel model)
 	{
-	}
+		var user = _userService.Authenticate(model.Username, model.Password);
 
-	// PUT api/<UserController>/5
-	[HttpPut("{id}")]
-	public void Put(int id, [FromBody] string value)
-	{
-	}
+		if (user == null)
+			return BadRequest(new { message = "Username or password is incorrect" });
 
-	// DELETE api/<UserController>/5
-	[HttpDelete("{id}")]
-	public void Delete(int id)
-	{
+		return Ok(user);
 	}
+	
 }

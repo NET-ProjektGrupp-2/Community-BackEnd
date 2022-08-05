@@ -1,4 +1,5 @@
 ﻿using Community_BackEnd.Data.Forums;
+using Community_BackEnd.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +17,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
 	public DbSet<Forum> Forums { get; set; }
 	public DbSet<Topic> Topics { get; set; }
 	public DbSet<Post> Posts { get; set; }
-	//public DbSet<AppUser> Users { get; set; }
-	//public DbSet<IdentityRole> Roles { get; set; }
+    public DbSet<AppUser> Users { get; set; }
+	public DbSet<Role> Role { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{

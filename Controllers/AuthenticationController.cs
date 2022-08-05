@@ -1,5 +1,9 @@
 ﻿using Community_BackEnd.Data;
 using Community_BackEnd.Data.Forums;
+using Community_BackEnd.Entities;
+using Community_BackEnd.Services;
+using Microsoft.AspNetCore.Authorization;
+//using IdentityServer.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -14,18 +18,24 @@ namespace Community_BackEnd.Controllers;
 public class AuthenticationController : ControllerBase
 {
 
- 
+
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+
+    // authentication set up
+    private IUserService _userService;
     public AuthenticationController(
          UserManager<IdentityUser> userManager,
          RoleManager<IdentityRole> roleManager,
-         IConfiguration configuration)
+         IConfiguration configuration,
+         IUserService userService)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+        _userService = userService;
+        _userService = userService;
     }
     [HttpPost]
     [Route("login")]
@@ -59,9 +69,11 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] Registration model)
     {
+        
         var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
@@ -78,7 +90,7 @@ public class AuthenticationController : ControllerBase
 
         return Ok(new Response { Status = "Success", Message = "User created successfully!" });
     }
-
+   
     [HttpPost]
     [Route("register-admin")]
     public async Task<IActionResult> RegisterAdmin([FromBody] Registration model)
@@ -127,35 +139,73 @@ public class AuthenticationController : ControllerBase
 
         return token;
     }
-    // GET: api/<AuthenticationController>
+
+    [AllowAnonymous]
+    [HttpPost("authenticate")]
+    public IActionResult Authenticate([FromBody] AuthenticateModel model)
+    {
+        
+        var user = _userService.Authenticate(model.Username, model.Password);
+
+        if (user == null)
+            return BadRequest(new { message = "Username or password is incorrect" });
+
+        return Ok(user);
+    }
+
+    [Authorize(Roles = Role.Admin)]
     [HttpGet]
-    public IEnumerable<string> Get()
+    public IActionResult GetAll()
     {
-        return new string[] { "value1", "value2" };
+        var users = _userService.GetAll();
+        return Ok(users);
     }
 
-    // GET api/<AuthenticationController>/5
     [HttpGet("{id}")]
-    public string Get(int id)
+    public IActionResult GetById(int id)
     {
-        return "value";
+        // only allow admins to access other user records
+        var currentUserId = int.Parse(User.Identity.Name);
+        if (id != currentUserId && !User.IsInRole(Role.Admin))
+            return Forbid();
+
+        var user = _userService.GetById(id);
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(user);
     }
 
-    // POST api/<AuthenticationController>
-    [HttpPost]
-    public void Post([FromBody] string value)
-    {
-    }
+    //// GET: api/<AuthenticationController>
+    //[HttpGet]
+    //public IEnumerable<string> Get()
+    //{
+    //    return new string[] { "value1", "value2" };
+    //}
 
-    // PUT api/<AuthenticationController>/5
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
-    {
-    }
+    //// GET api/<AuthenticationController>/5
+    //[HttpGet("{id}")]
+    //public string Get(int id)
+    //{
+    //    return "value";
+    //}
 
-    // DELETE api/<AuthenticationController>/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
-    {
-    }
+    //// POST api/<AuthenticationController>
+    //[HttpPost]
+    //public void Post([FromBody] string value)
+    //{
+    //}
+
+    //// PUT api/<AuthenticationController>/5
+    //[HttpPut("{id}")]
+    //public void Put(int id, [FromBody] string value)
+    //{
+    //}
+
+    //// DELETE api/<AuthenticationController>/5
+    //[HttpDelete("{id}")]
+    //public void Delete(int id)
+    //{
+    //}
 }

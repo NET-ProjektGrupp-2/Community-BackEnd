@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Numerics;
 using System;
 using Microsoft.AspNetCore.Identity;
+using Community_BackEnd.Entities;
 
 namespace Community_BackEnd.Data;
 
@@ -127,7 +128,7 @@ public class StaticDummyDB
 		Forum? target = Forums.Find(Forum => Forum.Id == id);
 		if(target != null)
 		{
-			return target.Topics;
+            return target.Topics;
 		}
 		return null;
 	}

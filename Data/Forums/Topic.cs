@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Community_BackEnd.Entities;
 
 namespace Community_BackEnd.Data.Forums;
 
@@ -9,7 +10,7 @@ public class Topic
 	[Key, ReadOnly(true)]
 	public int Id { get; set; }
 	[Required(AllowEmptyStrings = false)]
-	public string Title { get; set; }
+	public string? Title { get; set; }
 	[Required]
 	public DateTime CreationDate { get; set; }
 	public NewsArticle? Article { get; set; }

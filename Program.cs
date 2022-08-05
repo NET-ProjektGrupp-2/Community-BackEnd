@@ -1,4 +1,6 @@
 using Community_BackEnd.Data;
+using Community_BackEnd.Entities;
+using Community_BackEnd.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,8 @@ public class Program
 	public static void Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
+		//var tokenKey = builder.Configuration.GetValue<string>("TokenKey");
+		//var key = Encoding.ASCII.GetBytes(tokenKey);
 		ConfigurationManager configuration = builder.Configuration;
 
 		builder.Services.AddCors(
@@ -28,14 +32,17 @@ public class Program
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddDbContext<AppDbContext>(
 			options => options.UseSqlServer(
-				builder.Configuration.GetConnectionString("DefaultConnection")
+				builder.Configuration.GetConnectionString("DefaultConnection"),
+					options => options.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
+				
 				)
 			);
+		builder.Services.AddScoped<IUserService, UserService>();
 		builder.Services.AddIdentity<AppUser, IdentityRole>(
 			options => options.SignIn.RequireConfirmedAccount = false)
 			.AddDefaultTokenProviders()
 			.AddEntityFrameworkStores<AppDbContext>();
-		// Adding Authentication
+		// Adding Authentication service
 		builder.Services.AddAuthentication(
 			options => {
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -71,17 +78,21 @@ public class Program
 			//app.UseSwagger();
 			app.UseSwaggerUI();
 		}
+		//app.UseEndpoints(endpoints =>
+		//{
+		//	endpoints.MapControllers();
+		//});
 		app.UseHttpsRedirection();
 
 		app.UseStaticFiles();
-
+		app.UseRouting();
 		app.UseCors("AllowCORS");
-
+		//authentication preceds authorization
 		app.UseAuthentication();
 		app.UseAuthorization();
 
-		app.MapControllers();
-
+		//app.MapControllers();
+		
 		app.Run();
 	}
 }
