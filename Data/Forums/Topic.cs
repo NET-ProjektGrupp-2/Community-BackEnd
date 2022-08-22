@@ -16,7 +16,7 @@ public class Topic
 	public NewsArticle? Article { get; set; }
 	[BindRequired]
 	public string? AuthorId { get; set; }
-	public AppUser? Author { get; set; }
+	public User? Author { get; set; }
 	[BindRequired]
 	public int ForumId { get; set; }
 	public Forum Forum { get; set; }

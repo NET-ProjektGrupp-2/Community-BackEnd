@@ -34,7 +34,7 @@ public class UserController : ControllerBase
 	{
 		return "value";
 	}
-    [Route("[Authenticate]")]
+
     [AllowAnonymous]
 	[HttpPost("authenticate")]
 	public IActionResult Authenticate([FromBody] AuthenticateModel model)

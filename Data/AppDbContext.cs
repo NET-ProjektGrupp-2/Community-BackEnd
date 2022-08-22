@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 
 namespace Community_BackEnd.Data;
-public class AppDbContext : IdentityDbContext<AppUser> 
+public class AppDbContext : IdentityDbContext<User> 
 {
 	public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
 	{
@@ -17,24 +17,22 @@ public class AppDbContext : IdentityDbContext<AppUser>
 	public DbSet<Forum> Forums { get; set; }
 	public DbSet<Topic> Topics { get; set; }
 	public DbSet<Post> Posts { get; set; }
-    public DbSet<AppUser> Users { get; set; }
-	public DbSet<Role> Role { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
 
-		modelBuilder.Entity<AppUser>()
+		modelBuilder.Entity<User>()
 			.HasMany(u => u.Posts)
 			.WithOne(p => p.Author)
 			.HasForeignKey(p => p.AuthorId)
 			.HasPrincipalKey(u => u.Id).OnDelete(DeleteBehavior.SetNull);
-		modelBuilder.Entity<AppUser>()
+		modelBuilder.Entity<User>()
 			.HasMany(u => u.Topics)
 			.WithOne(t => t.Author)
 			.HasForeignKey(t => t.AuthorId)
 			.HasPrincipalKey(u => u.Id).OnDelete(DeleteBehavior.SetNull);
-		modelBuilder.Entity<AppUser>()
+		modelBuilder.Entity<User>()
 			.HasMany(a => a.ModeratedForums)
 			.WithMany(f => f.Moderators)
 			.UsingEntity(fm => fm.HasData(
@@ -56,12 +54,12 @@ public class AppDbContext : IdentityDbContext<AppUser>
 			}
 		));
 
-		modelBuilder.Entity<AppUser>()
+		modelBuilder.Entity<User>()
 			.HasMany(u => u.Articles)
 			.WithOne(a => a.Author)
 			.HasForeignKey(a => a.AuthorId)
 			.HasPrincipalKey(u => u.Id).OnDelete(DeleteBehavior.SetNull);
-		modelBuilder.Entity<AppUser>()
+		modelBuilder.Entity<User>()
 			.HasMany(u => u.IdentityUserRoles)
 			.WithOne()
 			.HasForeignKey(ur => ur.UserId)
@@ -104,7 +102,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
 			.HasForeignKey(p => p.ContextPostId)
 			.HasPrincipalKey(p => p.Id).OnDelete(DeleteBehavior.NoAction);
 
-		modelBuilder.Entity<AppUser>().HasData(StaticDummyDB.Users);
+		modelBuilder.Entity<User>().HasData(StaticDummyDB.Users);
 		modelBuilder.Entity<IdentityRole>().HasData(StaticDummyDB.Roles);
 		modelBuilder.Entity<Forum>().HasData(StaticDummyDB.Forums);
 		modelBuilder.Entity<Topic>().HasData(StaticDummyDB.Topics);

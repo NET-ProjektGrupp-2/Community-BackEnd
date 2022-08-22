@@ -19,6 +19,15 @@ namespace Community_BackEnd.Data.Forums
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password confirmation password do not match. ")]
         public string ConfirmPassword { set; get; }
+        [Display(Name = "Is administrator")]
+        public bool IsAdministrator { get; set; }
+
+        [Display(Name = "Is Author")]
+        public bool IsManager { get; set; }
+
+        //[Required]
+        //[Display(Name = "Office Number")]
+        //public int OfficeNumber { get; set; }
         //added 
         //[Required]
         //[EmailAddress]

@@ -16,7 +16,7 @@ public class NewsArticle
 
 	[BindRequired, ReadOnly(true)]
 	public string? AuthorId { get; set; }
-	public AppUser? Author { get; set; }
+	public User? Author { get; set; }
 
 	[Required(AllowEmptyStrings = false)]
 	public string Content { get; set; }

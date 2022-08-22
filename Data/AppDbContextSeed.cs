@@ -7,7 +7,7 @@ namespace Community_BackEnd.Data
     {
         public class ApplicationDbContextSeed
         {
-            public static async Task SeedEssentialsAsync(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+            public static async Task SeedEssentialsAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
             {
                 //Seed Roles
                 await roleManager.CreateAsync(new IdentityRole(Authorization.Roles.Administrator.ToString()));
@@ -16,7 +16,7 @@ namespace Community_BackEnd.Data
                 await roleManager.CreateAsync(new IdentityRole(Authorization.Roles.User.ToString()));
 
                 //Seed Default User
-                var defaultUser = new AppUser("user") { UserName = Authorization.default_username, Email = Authorization.default_email, EmailConfirmed = true, PhoneNumberConfirmed = true };
+                var defaultUser = new User("user") { UserName = Authorization.default_username, Email = Authorization.default_email, EmailConfirmed = true, PhoneNumberConfirmed = true };
 
                 if (userManager.Users.All(u => u.Id != defaultUser.Id))
                 {

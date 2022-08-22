@@ -6,9 +6,9 @@ using System.Text.Json.Nodes;
 
 namespace Community_BackEnd.Entities;
 
-public class AppUser : IdentityUser
+public class User : IdentityUser
 {
-    public AppUser(string userName) : base(userName)
+    public User(string userName) : base(userName)
     {
     }
     [Required]
@@ -27,9 +27,4 @@ public class AppUser : IdentityUser
     public List<Post>? Posts { get; set; }
     public List<NewsArticle>? Articles { get; set; }
      public List<IdentityUserRole<string>> IdentityUserRoles { get; set; }
-
-    public string Role { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-    public string Token { get; set; }
 }

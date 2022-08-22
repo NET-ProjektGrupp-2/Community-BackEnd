@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Community_BackEnd.Controllers;
@@ -19,9 +20,11 @@ public class AuthenticationController : ControllerBase
 {
 
 
+
     private readonly UserManager<IdentityUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+    private readonly AppDbContext _dbContext;
 
     // authentication set up
     private IUserService _userService;
@@ -29,19 +32,25 @@ public class AuthenticationController : ControllerBase
          UserManager<IdentityUser> userManager,
          RoleManager<IdentityRole> roleManager,
          IConfiguration configuration,
-         IUserService userService)
+         IUserService userService,
+         AppDbContext dbContext)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
         _userService = userService;
         _userService = userService;
+        _dbContext = dbContext;
     }
+    [AllowAnonymous]
     [HttpPost]
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] Login model)
     {
         var user = await _userManager.FindByNameAsync(model.Username);
+        //var resetToken=await _userManager.GeneratePasswordResetTokenAsync(user);
+        //await _userManager.ResetPasswordAsync(user, resetToken, model.Password);
+        await _userManager.AddPasswordAsync(user, model.Password);
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
         {
             var userRoles = await _userManager.GetRolesAsync(user);
@@ -67,13 +76,83 @@ public class AuthenticationController : ControllerBase
         }
         return Unauthorized();
     }
+    //private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    //{
+    //    using (var hmac = new HMACSHA512())
+    //    {
+    //        passwordSalt = hmac.Key;
+    //        passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+    //    }
+    //}
+    //private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    //{
+    //    using (var hmac = new HMACSHA512(passwordSalt))
+    //    {
+    //        var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+    //        return computedHash.SequenceEqual(passwordHash);
+    //    }
+    //}
+    private RefreshToken GenerateRefreshToken()
+    {
+        var refreshToken = new RefreshToken
+        {
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+            Expires = DateTime.Now.AddDays(7),
+            Created = DateTime.Now
+        };
+
+        return refreshToken;
+    }
+
+    //[HttpPost("refresh-token")]
+    //public async Task<ActionResult<string>> RefreshToken()
+    //{
+    //    var refreshToken = Request.Cookies["refreshToken"];
+
+    //    if (!user.RefreshToken.Equals(refreshToken))
+    //    {
+    //        return Unauthorized("Invalid Refresh Token.");
+    //    }
+    //    else if (AppUser.TokenExpires < DateTime.Now)
+    //    {
+    //        return Unauthorized("Token expired.");
+    //    }
+
+    //    string token = CreateToken(user);
+    //    var newRefreshToken = GenerateRefreshToken();
+    //    SetRefreshToken(newRefreshToken);
+
+    //    return Ok(token);
+    //}
+    private string CreateToken(User user)
+    {
+        List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
+        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+            _configuration.GetSection("AppSettings:Token").Value));
+
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.Now.AddDays(1),
+            signingCredentials: creds);
+
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return jwt;
+    }
 
     [HttpPost]
     [AllowAnonymous]
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] Registration model)
     {
-        
+
         var userExists = await _userManager.FindByNameAsync(model.Username);
         if (userExists != null)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
@@ -90,7 +169,7 @@ public class AuthenticationController : ControllerBase
 
         return Ok(new Response { Status = "Success", Message = "User created successfully!" });
     }
-   
+
     [HttpPost]
     [Route("register-admin")]
     public async Task<IActionResult> RegisterAdmin([FromBody] Registration model)
@@ -141,10 +220,10 @@ public class AuthenticationController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("authenticate")]
+    [HttpPost]
     public IActionResult Authenticate([FromBody] AuthenticateModel model)
     {
-        
+
         var user = _userService.Authenticate(model.Username, model.Password);
 
         if (user == null)
@@ -176,36 +255,57 @@ public class AuthenticationController : ControllerBase
 
         return Ok(user);
     }
+    [HttpGet]
+    public IActionResult AdminsEndpoint()
+    {
+        var currentUser = GetCurrentUser();
 
-    //// GET: api/<AuthenticationController>
-    //[HttpGet]
-    //public IEnumerable<string> Get()
-    //{
-    //    return new string[] { "value1", "value2" };
-    //}
+        return Ok($"Hi {currentUser.Firstname}, you are an {currentUser.IdentityUserRoles}");
+    }
 
-    //// GET api/<AuthenticationController>/5
-    //[HttpGet("{id}")]
-    //public string Get(int id)
-    //{
-    //    return "value";
-    //}
 
-    //// POST api/<AuthenticationController>
-    //[HttpPost]
-    //public void Post([FromBody] string value)
-    //{
-    //}
+    [HttpGet("Authors")]
+    [Authorize(Roles = "Author")]
+    public IActionResult SellersEndpoint()
+    {
+        var currentUser = GetCurrentUser();
 
-    //// PUT api/<AuthenticationController>/5
-    //[HttpPut("{id}")]
-    //public void Put(int id, [FromBody] string value)
-    //{
-    //}
+        return Ok($"Hi {currentUser.Firstname}, you are a {currentUser.IdentityUserRoles}");
+    }
 
-    //// DELETE api/<AuthenticationController>/5
-    //[HttpDelete("{id}")]
-    //public void Delete(int id)
-    //{
-    //}
+    [HttpGet("AdminsAndAuthor")]
+    [Authorize(Roles = "Administrator,Author")]
+    public IActionResult AdminsAndAuthorsEndpoint()
+    {
+        var currentUser = GetCurrentUser();
+
+        return Ok($"Hi {currentUser.Firstname}, you are an {currentUser.IdentityUserRoles}");
+    }
+
+    [HttpGet("Public")]
+    public IActionResult Public()
+    {
+        return Ok("Hi, you're on public property");
+    }
+
+    private User GetCurrentUser()
+    {
+        var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+        if (identity != null)
+        {
+            var userClaims = identity.Claims;
+
+            return new User("user")
+            {
+                UserName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                //  EmailAddress = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
+                Firstname = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
+                Surname = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Surname)?.Value
+              //  IdentityUserRoles = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
+            };
+        }
+
+        return null;
+    }
 }

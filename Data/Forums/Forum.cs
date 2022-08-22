@@ -19,7 +19,7 @@ public class Forum
 	public List<Forum>? SubForums { get; set; }
 	public List<Topic>? Topics { get; set; }
 
-	public List<AppUser>? Moderators { get; set; }
+	public List<User>? Moderators { get; set; }
 	public IdentityRole? RestrictedRole { get; set; }
 	public string? RestrictedRoleId { get; set; }
 

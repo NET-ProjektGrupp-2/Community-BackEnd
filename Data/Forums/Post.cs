@@ -14,7 +14,7 @@ public class Post
 	public DateTime? EditDate { get; set; }
 	[BindRequired]
 	public string? AuthorId { get; set; }
-	public AppUser? Author { get; set; }
+	public User? Author { get; set; }
 	public int? ContextPostId { get; set; }
 	public Post? ContextPost { get; set; }
 	public List<Post>? Replies { get; set; }

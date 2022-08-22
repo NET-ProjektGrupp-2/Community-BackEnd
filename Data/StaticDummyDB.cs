@@ -19,26 +19,26 @@ public class StaticDummyDB
 			new IdentityRole("User")
 		});
 
-	public static List<AppUser> Users = new List<AppUser>(
-		new AppUser[]{
-			new AppUser("jeres89"){
+	public static List<User> Users = new List<User>(
+		new User[]{
+			new User("jeres89"){
 				DisplayName="Jens",
 				Firstname="Jens",
 				Surname="Eresund",
 				Email="jens.eresund@gmail.com"
 			},
-			new AppUser("kembAB"){
+			new User("kembAB"){
 				DisplayName="Abel",
 				Firstname="Abel",
 				Surname="Magicho",
 				Email="kokiabel1986@gmail.com"
 			},
-			new AppUser("Libre255"){
+			new User("Libre255"){
 				DisplayName="Brian",
 				Firstname="Brian",
 				Surname="Veliz"
 			},
-			new AppUser("UnboundKey"){
+			new User("UnboundKey"){
 				DisplayName="Benjamin",
 				Firstname="Benjamin",
 				Surname="Nordin",

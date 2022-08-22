@@ -5,11 +5,29 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using System.Text;
 
 namespace Community_BackEnd;
 public class Program
 {
+	// Initialize some test roles. 
+	private string[] roles = new[] { "User", "Author", "Administrator" };
+	private async Task InitializeRoles(RoleManager<IdentityRole> roleManager)
+	{
+		foreach (var role in roles)
+		{
+			if (!await roleManager.RoleExistsAsync(role))
+			{
+				var newRole = new IdentityRole(role);
+				await roleManager.CreateAsync(newRole);
+				// claims associated with roles
+				// _roleManager.AddClaimAsync(newRole, new )
+			}
+		}
+	}
 	public static void Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
@@ -32,13 +50,13 @@ public class Program
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddDbContext<AppDbContext>(
 			options => options.UseSqlServer(
-				builder.Configuration.GetConnectionString("DefaultConnection"),
-					options => options.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
+				builder.Configuration.GetConnectionString("DefaultConnection")
+					//options => options.MigratationsAssembly(typeof(AppDbContext).Assembly.FullName)
 				
 				)
 			);
 		builder.Services.AddScoped<IUserService, UserService>();
-		builder.Services.AddIdentity<AppUser, IdentityRole>(
+		builder.Services.AddIdentity<User, IdentityRole>(
 			options => options.SignIn.RequireConfirmedAccount = false)
 			.AddDefaultTokenProviders()
 			.AddEntityFrameworkStores<AppDbContext>();
@@ -48,7 +66,15 @@ public class Program
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+				
+				//options.UseJwtBearerAuthentication.
+				//{
+				//	Audience = "http://localhost:5001/";
+				//	Authority = "http://localhost:5000/";
+				//	AutomaticAuthenticate = true;
+				//});
 			})
+
 			// Adding Jwt Bearer
 			.AddJwtBearer(options => {
 				options.SaveToken = true;
@@ -78,21 +104,21 @@ public class Program
 			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
-		//app.UseEndpoints(endpoints =>
-		//{
-		//	endpoints.MapControllers();
-		//});
+		
 		app.UseHttpsRedirection();
 
 		app.UseStaticFiles();
-		app.UseRouting();
+		//app.UseRouting();
 		app.UseCors("AllowCORS");
-		//authentication preceds authorization
+		
 		app.UseAuthentication();
 		app.UseAuthorization();
-
-		//app.MapControllers();
-		
-		app.Run();
+		//app.AddMvc();
+        app.MapControllers();
+        //app.UseEndpoints(endpoints =>
+		//{
+		//	endpoints.MapControllers();
+		//});
+        app.Run();
 	}
 }
